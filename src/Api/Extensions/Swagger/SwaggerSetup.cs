@@ -1,29 +1,17 @@
-namespace Api.Extensions;
+using System.Reflection;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
+
+namespace Api.Extensions.Swagger;
 
 public static class SwaggerSetup
 {
     public static IServiceCollection AdicionaSwagger(this IServiceCollection services)
     {
-        services.AddEndpointsApiExplorer();
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-            {
-                Title = "API de Autenticação e Autorização",
-                Version = "v1",
-                Description = "API para gerenciar autenticação e autorização de usuários com ASP.NET Identity e JWT.",
-                Contact = new Microsoft.OpenApi.Models.OpenApiContact
-                {
-                    Name = "Thiago Sonza",
-                    Email = "thiagosnz11@gmail.com",
-                    Url = new Uri("https://www.linkedin.com/in/thiago-sonza-10a408196")
-                },
-                License = new Microsoft.OpenApi.Models.OpenApiLicense
-                {
-                    Name = "MIT",
-                    Url = new Uri("https://opensource.org/license/mit/")
-                },
-            });
+            options.OperationFilter<SwaggerDefaultValues>();
 
             options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
             {
@@ -56,11 +44,18 @@ public static class SwaggerSetup
     public static WebApplication ConfigureSwagger(this WebApplication app)
     {
         app.UseSwagger();
-        app.UseSwaggerUI(opt =>
+        app.UseSwaggerUI(options =>
         {
-            opt.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
-            opt.DocumentTitle = "API Documentation";
-            opt.DefaultModelsExpandDepth(-1); // Hide default models section
+            string appName = Assembly.GetEntryAssembly()?.GetName().Name!;
+            var descriptions = app.DescribeApiVersions();
+
+            foreach (var description in descriptions)
+            {
+                var url = $"/swagger/{description.GroupName}/swagger.json";
+                var name = description.GroupName.ToUpperInvariant();
+                options.SwaggerEndpoint(url, $"{appName} - {name}");
+                options.DefaultModelsExpandDepth(-1); // Hide default models section
+            }
         });
         return app;
     }

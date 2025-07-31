@@ -1,7 +1,9 @@
 using Api.Extensions;
+using Api.Extensions.Swagger;
 using Thiagosza.Mediator.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddVersioning();
 builder.Services.AddCors();
 builder.Services.AddApiProblemDetails();
 builder.Services.AdicionaSwagger();
