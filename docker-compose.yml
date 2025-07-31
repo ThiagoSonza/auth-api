@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  mailHog:
+    container_name: "smtpmailhog"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    image: "mailhog/mailhog:latest"
+  database:
+    container_name: "bancodados"
+    hostname: "bancodados"
+    ports:
+      - "9433:1433"
+    image: "mcr.microsoft.com/azure-sql-edge:latest"
+    environment:
+      ACCEPT_EULA: "1"
+      MSSQL_SA_PASSWORD: "Teste12345!"
