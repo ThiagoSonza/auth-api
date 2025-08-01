@@ -1,3 +1,4 @@
+using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,10 @@ public class UserLoginMapping : IEntityTypeConfiguration<IdentityUserLogin<strin
 
         builder.HasKey(ul => new { ul.LoginProvider, ul.ProviderKey });
 
+        builder.Property(ul => ul.UserId)
+            .HasMaxLength(36)
+            .IsRequired();
+
         builder.Property(ul => ul.LoginProvider)
             .HasMaxLength(50)
             .IsRequired();
@@ -23,7 +28,7 @@ public class UserLoginMapping : IEntityTypeConfiguration<IdentityUserLogin<strin
             .HasMaxLength(100)
             .IsRequired(false);
 
-        builder.HasOne<IdentityUser>()
+        builder.HasOne<UserDomain>()
             .WithMany()
             .HasForeignKey(ul => ul.UserId)
             .OnDelete(DeleteBehavior.Cascade);

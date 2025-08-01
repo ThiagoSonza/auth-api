@@ -53,12 +53,9 @@ public class UserMapping : IEntityTypeConfiguration<UserDomain>
             .IsRequired(false);
 
         builder.Property(u => u.PhoneNumberConfirmed)
-            .HasDefaultValue(false)
-            .IsRequired(false);
+            .HasDefaultValue(false);
 
         builder.Property(u => u.TwoFactorEnabled)
-            .HasDefaultValue(false)
-            .IsRequired(false);
-
+            .HasDefaultValue(false);
     }
 }

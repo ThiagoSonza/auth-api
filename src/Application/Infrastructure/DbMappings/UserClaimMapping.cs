@@ -1,3 +1,4 @@
+using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,10 +13,6 @@ public class UserClaimMapping : IEntityTypeConfiguration<IdentityUserClaim<strin
 
         builder.HasKey(uc => uc.Id);
 
-        builder.Property(uc => uc.Id)
-            .HasMaxLength(36)
-            .IsRequired();
-
         builder.Property(uc => uc.UserId)
             .HasMaxLength(36)
             .IsRequired();
@@ -28,7 +25,7 @@ public class UserClaimMapping : IEntityTypeConfiguration<IdentityUserClaim<strin
             .HasMaxLength(50)
             .IsRequired(false);
 
-        builder.HasOne<IdentityUser>()
+        builder.HasOne<UserDomain>()
             .WithMany()
             .HasForeignKey(uc => uc.UserId)
             .OnDelete(DeleteBehavior.Cascade);

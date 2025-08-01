@@ -1,3 +1,4 @@
+using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -28,7 +29,7 @@ public class UserTokenMapping : IEntityTypeConfiguration<IdentityUserToken<strin
             .HasMaxLength(150)
             .IsRequired(false);
 
-        builder.HasOne<IdentityUser>()
+        builder.HasOne<UserDomain>()
             .WithMany()
             .HasForeignKey(ut => ut.UserId)
             .OnDelete(DeleteBehavior.Cascade);

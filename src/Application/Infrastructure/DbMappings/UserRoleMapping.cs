@@ -1,3 +1,4 @@
+using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,7 +21,7 @@ public class UserRoleMapping : IEntityTypeConfiguration<IdentityUserRole<string>
             .HasMaxLength(36)
             .IsRequired();
 
-        builder.HasOne<IdentityUser>()
+        builder.HasOne<UserDomain>()
             .WithMany()
             .HasForeignKey(ur => ur.UserId)
             .OnDelete(DeleteBehavior.Cascade);
