@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Mfa.Features.EnableMultiFactor;
 
-public record EnableMultiFactorCommand : IRequest<Result>
+public record EnableMultiFactorCommand : IRequest<Result<string>>
 {
     private EnableMultiFactorCommand(string userId)
     {

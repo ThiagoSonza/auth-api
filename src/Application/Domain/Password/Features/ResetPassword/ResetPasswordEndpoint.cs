@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Password.Features.ResetPassword;
@@ -14,13 +13,7 @@ public class ResetPasswordEndpoint : IEndPoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app
-            .MapGroup(string.Empty)
-            .WithTags("Credentials")
-            .WithOpenApi()
-            .AllowAnonymous();
-
-        group.MapPost("reset-password", async (
+        app.MapPost("reset-password", async (
             [FromServices] IMediator mediator,
             [FromBody] ResetPasswordRequest request,
             CancellationToken cancellationToken) =>
@@ -30,13 +23,15 @@ public class ResetPasswordEndpoint : IEndPoint
                 if (result.IsSuccess)
                     return Results.Ok(result);
 
-                return Results.BadRequest(result);
+                return Results.Problem(result.Error?.First());
             })
-            .AddEndpointFilter<ValidationFilter<ResetPasswordRequest>>()
+            .WithOpenApi()
+            .WithTags("Credentials")
             .WithName("ResetPassword")
             .WithDescription("Endpoint for resetting a user's password")
             .WithSummary("Resets a user's password using a reset code")
-            .Produces<Result>(StatusCodes.Status200OK)
+            .AddEndpointFilter<ValidationFilter<ResetPasswordRequest>>()
+            .Produces<string>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }

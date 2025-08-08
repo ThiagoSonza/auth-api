@@ -3,7 +3,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Email.Features.ConfirmEmail;
 
-public class ConfirmEmailCommand : IRequest<Result>
+public class ConfirmEmailCommand : IRequest<Result<string>>
 {
     private ConfirmEmailCommand(string token, string email)
     {

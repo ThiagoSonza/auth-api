@@ -14,12 +14,7 @@ public class ResendConfirmationEmailEndpoint : IEndPoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app
-            .MapGroup(string.Empty)
-            .WithOpenApi()
-            .WithTags("Confirm Email");
-
-        group.MapPost("resend-confirm-email", async (
+        app.MapPost("resend-confirm-email", async (
             [FromServices] IMediator mediator,
             [FromBody] ResendConfirmationEmailRequest request,
             CancellationToken cancellationToken) =>
@@ -27,17 +22,19 @@ public class ResendConfirmationEmailEndpoint : IEndPoint
                 ResendConfirmationEmailCommand command = request;
                 var result = await mediator.Send(command, cancellationToken);
                 if (result.IsSuccess)
-                    return Results.Ok(result);
+                    return Results.Ok(result.Value);
 
-                return Results.BadRequest(result);
+                return Results.Problem(result.Error?.First());
             })
-            .AddEndpointFilter<ValidationFilter<ResendConfirmationEmailRequest>>()
+            .WithOpenApi()
+            .WithTags("Confirm Email")
             .WithName("ResendConfirmationEmail")
             .WithDescription("Endpoint for resending confirmation email")
             .WithSummary("Resends a confirmation email to the user")
-            .Produces<Result>(StatusCodes.Status200OK)
+            .AddEndpointFilter<ValidationFilter<ResendConfirmationEmailRequest>>()
+            .AllowAnonymous()
+            .Produces<string>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
-            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
-            .AllowAnonymous();
+            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }
 }

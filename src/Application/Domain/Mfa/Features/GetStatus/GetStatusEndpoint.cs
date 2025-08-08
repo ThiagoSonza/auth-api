@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Mfa.Features.GetStatus;
@@ -26,15 +25,15 @@ public class GetStatusEndpoint : IEndPoint
             {
                 var command = GetStatusCommand.Create(userPrincipal);
                 var result = await mediator.Send(command, cancellationToken);
-                if (result is not null)
-                    return Results.Ok(result);
+                if (result.IsSuccess)
+                    return Results.Ok(result.Value);
 
-                return Results.BadRequest(result);
+                return Results.Problem(result.Error?.First());
             })
             .WithName("GetMfaStatus")
             .WithDescription("Endpoint for retrieving multi-factor authentication status")
             .WithSummary("Retrieves the multi-factor authentication status for a user")
-            .Produces<Result>(StatusCodes.Status200OK)
+            .Produces<bool>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }

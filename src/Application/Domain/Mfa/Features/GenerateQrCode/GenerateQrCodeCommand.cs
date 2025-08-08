@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Mfa.Features.GenerateQrCode;
 
-public class GenerateQrCodeCommand : IRequest<Result>
+public class GenerateQrCodeCommand : IRequest<Result<GenerateQrCodeResponse>>
 {
     private GenerateQrCodeCommand(string userId)
     {

@@ -7,16 +7,16 @@ namespace Application.Domain.Password.Features.ForgotPassword;
 
 public class ForgotPasswordHandler(
     UserManager<UserDomain> userManager
-) : IRequestHandler<ForgotPasswordCommand, Result>
+) : IRequestHandler<ForgotPasswordCommand, Result<string>>
 {
-    public async Task<Result> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(ForgotPasswordCommand command, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(command.Email);
         if (user is null)
-            return Result.Failure("Usuário não encontrado");
+            return Result.Failure<string>("Usuário não encontrado");
 
         if (!await userManager.IsEmailConfirmedAsync(user))
-            return Result.Failure("Essa conta precisa confirmar seu e-mail antes de realizar o login");
+            return Result.Failure<string>("Essa conta precisa confirmar seu e-mail antes de realizar o login");
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
 

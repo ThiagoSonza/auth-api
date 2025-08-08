@@ -7,29 +7,29 @@ namespace Application.Domain.Password.Features.ResetPassword;
 
 public class ResetPasswordHandler(
     UserManager<UserDomain> userManager
-) : IRequestHandler<ResetPasswordCommand, Result>
+) : IRequestHandler<ResetPasswordCommand, Result<string>>
 {
-    public async Task<Result> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(command.Email);
-
         if (user is null)
-            return Result.Failure("Usuário não encontrado");
+            return Result.Failure<string>("Usuário não encontrado");
 
         if (!await userManager.IsEmailConfirmedAsync(user))
-            return Result.Failure("Essa conta precisa confirmar seu e-mail antes de realizar o login");
+            return Result.Failure<string>("Essa conta precisa confirmar seu e-mail antes de realizar o login");
 
-        var result = await userManager.ResetPasswordAsync(user, command.Token, command.NewPassword);
-        // if (result.Succeeded)
-        // {
-        //     var template = await new EmailTemplateRendererBuilder("ResetPassword")
-        //         .With("UserName", user.UserName!)
-        //         .Build(emailTemplateRenderer);
+        var result = await userManager.ResetPasswordAsync(user, command.ResetCode, command.NewPassword);
+        if (result.Succeeded)
+        {
+            //     var template = await new EmailTemplateRendererBuilder("ResetPassword")
+            //         .With("UserName", user.UserName!)
+            //         .Build(emailTemplateRenderer);
 
-        //     await emailSender.SendEmailAsync(user.Email!, "Sua senha foi alterada", template);
-        // }
+            // await emailSender.SendEmailAsync(user.Email!, "Sua senha foi alterada", template);
+            return Result.Success("Senha alterada com sucesso");
+        }
 
         var errors = result.Errors.Select(e => e.Description).ToList();
-        return Result.Failure(errors);
+        return Result.Failure<string>(errors);
     }
 }

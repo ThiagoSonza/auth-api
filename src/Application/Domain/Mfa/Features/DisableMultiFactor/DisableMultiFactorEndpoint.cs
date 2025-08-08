@@ -12,25 +12,26 @@ public class DisableMultiFactorEndpoint : IEndPoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app
-            .MapGroup(string.Empty)
-            .WithTags("MFA")
-            .WithOpenApi()
-            .AllowAnonymous();
-
-        group.MapPost("/disable", async (
+        app.MapPost("/disable", async (
             [FromServices] IMediator mediator,
             ClaimsPrincipal userPrincipal,
             CancellationToken cancellationToken) =>
             {
                 var command = DisableMultiFactorCommand.Create(userPrincipal);
                 var result = await mediator.Send(command, cancellationToken);
-                if (result is not null)
-                    return Results.Ok(result);
+                if (result.IsSuccess)
+                    return Results.Ok(result.Value);
 
-                return Results.BadRequest(result);
+                return Results.Problem(result.Error?.First());
             })
             .WithOpenApi()
-            .RequireAuthorization();
+            .WithTags("MFA")
+            .WithName("DisableMultiFactor")
+            .WithDescription("Endpoint for disable multi-factor authentication")
+            .WithSummary("Disable a user's multi-factor authentication")
+            .RequireAuthorization()
+            .Produces<string>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }
 }

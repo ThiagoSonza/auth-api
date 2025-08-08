@@ -11,13 +11,13 @@ namespace Application.Domain.Mfa.Features.GenerateQrCode;
 public class GenerateQrCodeHandler(
     UserManager<UserDomain> userManager,
     IConfiguration configuration
-) : IRequestHandler<GenerateQrCodeCommand, Result>
+) : IRequestHandler<GenerateQrCodeCommand, Result<GenerateQrCodeResponse>>
 {
-    public async Task<Result> Handle(GenerateQrCodeCommand command, CancellationToken cancellationToken)
+    public async Task<Result<GenerateQrCodeResponse>> Handle(GenerateQrCodeCommand command, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(command.UserId);
         if (user is null)
-            return Result.Failure("Usuário não encontrado.");
+            return Result.Failure<GenerateQrCodeResponse>("Usuário não encontrado.");
 
         var key = (await userManager.GetAuthenticatorKeyAsync(user))!;
         if (string.IsNullOrEmpty(key))

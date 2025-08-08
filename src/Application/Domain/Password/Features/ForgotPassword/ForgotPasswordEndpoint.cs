@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Password.Features.ForgotPassword;
@@ -14,13 +13,7 @@ public class ForgotPasswordEndpoint : IEndPoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app
-            .MapGroup(string.Empty)
-            .WithTags("Credentials")
-            .WithOpenApi()
-            .AllowAnonymous();
-
-        group.MapPost("forgot-password", async (
+        app.MapPost("forgot-password", async (
             [FromServices] IMediator mediator,
             [FromBody] ForgotPasswordRequest request,
             CancellationToken cancellationToken) =>
@@ -28,15 +21,18 @@ public class ForgotPasswordEndpoint : IEndPoint
                 ForgotPasswordCommand command = request;
                 var result = await mediator.Send(command, cancellationToken);
                 if (result.IsSuccess)
-                    return Results.Ok(result);
+                    return Results.Ok(result.Value);
 
-                return Results.BadRequest(result);
+                return Results.Problem(result.Error?.First());
             })
-            .AddEndpointFilter<ValidationFilter<ForgotPasswordRequest>>()
+            .WithTags("Credentials")
+            .WithOpenApi()
             .WithName("ForgotPassword")
             .WithDescription("Endpoint for requesting a password reset")
             .WithSummary("Sends a password reset code to the user's email")
-            .Produces<Result>(StatusCodes.Status200OK)
+            .AddEndpointFilter<ValidationFilter<ForgotPasswordRequest>>()
+            .AllowAnonymous()
+            .Produces<string>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }

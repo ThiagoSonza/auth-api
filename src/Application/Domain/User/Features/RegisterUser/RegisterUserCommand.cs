@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.User.Features.RegisterUser;
 
-public class RegisterUserCommand : IRequest<Result>
+public class RegisterUserCommand : IRequest<Result<RegisterUserResponse>>
 {
     private RegisterUserCommand(string email, string password)
     {

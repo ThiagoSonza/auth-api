@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Roles.Features.CreateRole;
 
-public class CreateRoleCommand : IRequest<Result>
+public class CreateRoleCommand : IRequest<Result<CreateRoleResponse>>
 {
     private CreateRoleCommand(string name)
     {

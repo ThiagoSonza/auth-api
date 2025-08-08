@@ -1,20 +1,19 @@
 using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
 
-namespace Application.Domain.Roles.Features.DeleteRole
+namespace Application.Domain.Roles.Features.DeleteRole;
+
+public record DeleteRoleCommand : IRequest<Result<string>>
 {
-    public record DeleteRoleCommand : IRequest<Result>
+    private DeleteRoleCommand(string roleId)
     {
-        private DeleteRoleCommand(string roleName)
-        {
-            RoleName = roleName;
-        }
+        RoleId = roleId;
+    }
 
-        public string RoleName { get; }
+    public string RoleId { get; }
 
-        public static DeleteRoleCommand Create(string roleName)
-        {
-            return new DeleteRoleCommand(roleName);
-        }
+    public static DeleteRoleCommand Create(string roleId)
+    {
+        return new DeleteRoleCommand(roleId);
     }
 }

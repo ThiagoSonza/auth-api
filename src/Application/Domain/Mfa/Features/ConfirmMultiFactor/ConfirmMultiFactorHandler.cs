@@ -6,24 +6,23 @@ using Thiagosza.Mediator.Core.Interfaces;
 namespace Application.Domain.Mfa.Features.ConfirmMultiFactor;
 
 public class ConfirmMultiFactorHandler(UserManager<UserDomain> userManager)
-    : IRequestHandler<ConfirmMultiFactorCommand, Result>
+    : IRequestHandler<ConfirmMultiFactorCommand, Result<string>>
 {
-    public async Task<Result> Handle(ConfirmMultiFactorCommand request, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(ConfirmMultiFactorCommand command, CancellationToken cancellationToken)
     {
-        var user = await userManager.FindByIdAsync(request.UserId);
+        var user = await userManager.FindByIdAsync(command.UserId);
         if (user is null)
-            return Result.Failure("User not found.");
+            return Result.Failure<string>("User not found.");
 
         var isValid = await userManager.VerifyTwoFactorTokenAsync(
             user,
             TokenOptions.DefaultAuthenticatorProvider,
-            request.Code
+            command.Code
         );
 
         if (!isValid)
-            return Result.Failure("Invalid code.");
+            return Result.Failure<string>("Invalid code.");
 
-        await userManager.SetTwoFactorEnabledAsync(user, true);
-        return Result.Success("2FA successfully enabled.");
+        return Result.Success("Code validated with success");
     }
 }

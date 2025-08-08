@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Login.Features.Authenticate;
@@ -14,13 +13,7 @@ public class AuthenticateEndpoint : IEndPoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app
-            .MapGroup(string.Empty)
-            .WithOpenApi()
-            .WithTags("Authentication")
-            .AllowAnonymous();
-
-        group.MapPost("login", async (
+        app.MapPost("login", async (
             [FromServices] IMediator mediator,
             [FromBody] LoginRequest request,
             CancellationToken cancellationToken) =>
@@ -28,15 +21,18 @@ public class AuthenticateEndpoint : IEndPoint
                 AuthenticateCommand command = request;
                 var result = await mediator.Send(command, cancellationToken);
                 if (result.IsSuccess)
-                    return Results.Ok(result);
+                    return Results.Ok(result.Value);
 
-                return Results.Unauthorized();
+                return Results.Problem(result.Error?.First());
             })
-            .AddEndpointFilter<ValidationFilter<LoginRequest>>()
+            .WithOpenApi()
+            .WithTags("Authentication")
             .WithName("Login")
             .WithDescription("Endpoint for user login")
             .WithSummary("Authenticates a user and returns a JWT token")
-            .Produces<Result<AuthenticateResponse>>(StatusCodes.Status200OK)
+            .AllowAnonymous()
+            .AddEndpointFilter<ValidationFilter<LoginRequest>>()
+            .Produces<AuthenticateResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }

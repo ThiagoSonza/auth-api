@@ -14,12 +14,6 @@ public class RegisterUserEndpoint : IEndPoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app
-            .MapGroup(string.Empty)
-            .WithOpenApi()
-            .WithTags("User Registration")
-            .RequireAuthorization();
-
         app.MapPost("register", async (
             [FromServices] IMediator mediator,
             [FromBody] RegisterRequest request,
@@ -27,18 +21,18 @@ public class RegisterUserEndpoint : IEndPoint
             {
                 RegisterUserCommand command = request;
                 var result = await mediator.Send(command, cancellationToken);
-                if (result is not null)
-                    return Results.Ok(result);
+                if (result.IsSuccess)
+                    return Results.Created($"/user/{result.Value.Id}", result.Value);
 
-                return Results.BadRequest(result);
+                return Results.Problem(result.Error?.First());
             })
-            .AddEndpointFilter<ValidationFilter<RegisterRequest>>()
             .WithOpenApi()
             .WithTags("User Registration")
             .WithName("RegisterUser")
             .WithDescription("Endpoint to register a new user")
             .WithSummary("Registers a new user in the system")
-            .Produces<Result>(StatusCodes.Status200OK)
+            .AddEndpointFilter<ValidationFilter<RegisterRequest>>()
+            .Produces<RegisterUserResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }

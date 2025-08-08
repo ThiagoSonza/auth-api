@@ -12,26 +12,23 @@ public class GetRolesEndpoint : IEndPoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        var group = app
-            .MapGroup(string.Empty)
-            .WithOpenApi()
-            .WithTags("Roles")
-            .RequireAuthorization();
-
-        group.MapGet("roles", async (
+        app.MapGet("roles", async (
             [FromServices] IMediator mediator,
             CancellationToken cancellationToken) =>
             {
                 var command = GetRolesCommand.Create();
                 var result = await mediator.Send(command, cancellationToken);
-                if (result is not null)
-                    return Results.Ok(result);
+                if (result.IsSuccess && result.Value.Any())
+                    return Results.Ok(result.Value);
 
                 return Results.NotFound("No roles found.");
             })
+            .WithOpenApi()
+            .WithTags("Roles")
             .WithName("GetRoles")
             .WithDescription("Endpoint for retrieving all roles")
             .WithSummary("Retrieves a list of all roles in the identity system")
+            .RequireAuthorization()
             .Produces<IEnumerable<IdentityRole>>(StatusCodes.Status200OK)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError);
     }

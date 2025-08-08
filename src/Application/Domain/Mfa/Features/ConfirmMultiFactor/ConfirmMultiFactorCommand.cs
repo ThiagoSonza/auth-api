@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Mfa.Features.ConfirmMultiFactor;
 
-public class ConfirmMultiFactorCommand : IRequest<Result>
+public class ConfirmMultiFactorCommand : IRequest<Result<string>>
 {
     private ConfirmMultiFactorCommand(string code, string userId)
     {

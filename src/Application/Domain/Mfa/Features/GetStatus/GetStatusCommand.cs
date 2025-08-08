@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Mfa.Features.GetStatus;
 
-public class GetStatusCommand : IRequest<Result>
+public class GetStatusCommand : IRequest<Result<bool>>
 {
     private GetStatusCommand(string userId)
     {

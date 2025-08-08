@@ -5,16 +5,16 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Email.Features.ResendConfirmationEmail;
 
-public class ResendConfirmationHandler(UserManager<UserDomain> userManager) : IRequestHandler<ResendConfirmationEmailCommand, Result>
+public class ResendConfirmationHandler(UserManager<UserDomain> userManager) : IRequestHandler<ResendConfirmationEmailCommand, Result<string>>
 {
-    public async Task<Result> Handle(ResendConfirmationEmailCommand command, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(ResendConfirmationEmailCommand command, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(command.Email);
         if (user == null)
-            return Result.Failure("Usuário não encontrado.");
+            return Result.Failure<string>("Usuário não encontrado.");
 
         if (await userManager.IsEmailConfirmedAsync(user))
-            return Result.Failure("Esse e-mail já foi confirmado.");
+            return Result.Failure<string>("Esse e-mail já foi confirmado.");
 
         // var template = await new EmailTemplateRendererBuilder("ConfirmEmail")
         //     .With("UserName", user.UserName!)

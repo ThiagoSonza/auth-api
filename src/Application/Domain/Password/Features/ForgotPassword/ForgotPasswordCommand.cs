@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Password.Features.ForgotPassword;
 
-public class ForgotPasswordCommand : IRequest<Result>
+public class ForgotPasswordCommand : IRequest<Result<string>>
 {
     private ForgotPasswordCommand(string email)
     {

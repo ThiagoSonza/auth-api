@@ -4,7 +4,7 @@ using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.Email.Features.ResendConfirmationEmail;
 
-public record ResendConfirmationEmailCommand : IRequest<Result>
+public record ResendConfirmationEmailCommand : IRequest<Result<string>>
 {
     private ResendConfirmationEmailCommand(string email)
     {
