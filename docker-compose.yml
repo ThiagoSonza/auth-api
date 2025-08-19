@@ -1,17 +1,97 @@
-version: '3.8'
 services:
   mailHog:
-    container_name: "smtpmailhog"
+    container_name: "smtp"
     ports:
       - "8025:8025"
       - "1025:1025"
     image: "mailhog/mailhog:latest"
+
   database:
-    container_name: "bancodados"
-    hostname: "bancodados"
+    container_name: "database"
+    hostname: "database"
     ports:
       - "9433:1433"
     image: "mcr.microsoft.com/azure-sql-edge:latest"
     environment:
       ACCEPT_EULA: "1"
       MSSQL_SA_PASSWORD: "Teste12345!"
+
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./devops/tempo.yaml:/etc/tempo.yaml
+
+  collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: collector
+    command: ["--config=/etc/collector.yaml"]
+    ports:
+      - "4317:4317" # Connection from app to grafana tempo
+      - "4318:4318" # HTTP
+      - "8889:8889" # Prometheus metrics
+    volumes:
+      - ./devops/otelcollector-config.yml:/etc/collector.yaml
+    depends_on:
+      - tempo
+
+  cadvisor:
+    image: gcr.io/google-containers/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+      - --enable-feature=native-histograms
+    volumes:
+      - ./devops/prometheus.yaml:/etc/prometheus.yaml
+    depends_on:
+      - cadvisor
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./devops/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./devops/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    depends_on:
+      - prometheus
+      - collector
+      - tempo
+
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - grafana
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - ASPNETCORE_ENVIRONMENT=Development

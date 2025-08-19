@@ -1,0 +1,47 @@
+apiVersion: 1
+
+datasources:
+  - name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://tempo:3200
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+    apiVersion: 1
+    uid: tempo
+
+  - name: Prometheus
+    type: prometheus
+    typeName: Prometheus
+    access: proxy
+    url: http://prometheus:9090
+    user: ""
+    database: ""
+    basicAuth: false
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+    readOnly: false
+    uid: prometheus-uid
+
+  - name: Loki
+    uid: loki-uid
+    orgId: 1
+    type: loki
+    typeName: Loki
+    access: proxy
+    url: http://loki:3100
+    user: ""
+    database: ""
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      derivedFields:
+        - datasourceUid: tempo-uid
+          matcherRegex: "\"TraceId\":\"(\\w+)\""
+          name: Trace ID
+          url: "$${__value.raw}"
+    readOnly: false

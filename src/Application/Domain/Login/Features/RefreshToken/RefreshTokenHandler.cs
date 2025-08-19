@@ -12,11 +12,12 @@ namespace Application.Domain.Login.Features.RefreshToken;
 
 public class RefreshTokenHandler(
     UserManager<UserDomain> userManager,
+    RefreshTokenTelemetry telemetry,
     IConfiguration config) : IRequestHandler<RefreshTokenCommand, Result<RefreshTokenResponse>>
 {
-    public async Task<Result<RefreshTokenResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public async Task<Result<RefreshTokenResponse>> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
     {
-        var user = (await userManager.FindByIdAsync(request.UserId))!;
+        var user = (await userManager.FindByIdAsync(command.UserId))!;
 
         List<string> errors = [];
         if (await userManager.IsLockedOutAsync(user))
@@ -25,14 +26,18 @@ public class RefreshTokenHandler(
             errors.Add("Essa conta precisa confirmar seu e-mail antes de realizar o login");
 
         if (errors.Count > 0)
+        {
+            telemetry.AuthenticateFailed(user, errors);
             return Result.Failure<RefreshTokenResponse>(errors);
+        }
 
-        return Result.Success(await GerarCredenciais(user.Email!));
+        var credentials = await GerarCredenciais(user);
+        telemetry.AuthenticateSuccessful(user);
+        return Result.Success(credentials);
     }
 
-    private async Task<RefreshTokenResponse> GerarCredenciais(string email)
+    private async Task<RefreshTokenResponse> GerarCredenciais(UserDomain user)
     {
-        var user = (await userManager.FindByEmailAsync(email))!;
         var accessTokenClaims = await ObterClaims(user, adicionarClaimsUsuario: true);
         var refreshTokenClaims = await ObterClaims(user, adicionarClaimsUsuario: false);
 

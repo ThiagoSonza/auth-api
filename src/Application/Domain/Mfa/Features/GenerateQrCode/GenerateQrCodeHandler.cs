@@ -10,14 +10,18 @@ namespace Application.Domain.Mfa.Features.GenerateQrCode;
 
 public class GenerateQrCodeHandler(
     UserManager<UserDomain> userManager,
-    IConfiguration configuration
+    IConfiguration configuration,
+    GenerateQrCodeTelemetry telemetry
 ) : IRequestHandler<GenerateQrCodeCommand, Result<GenerateQrCodeResponse>>
 {
     public async Task<Result<GenerateQrCodeResponse>> Handle(GenerateQrCodeCommand command, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(command.UserId);
         if (user is null)
+        {
+            telemetry.MarkUserNotFound(command.UserId);
             return Result.Failure<GenerateQrCodeResponse>("Usuário não encontrado.");
+        }
 
         var key = (await userManager.GetAuthenticatorKeyAsync(user))!;
         if (string.IsNullOrEmpty(key))
@@ -36,8 +40,10 @@ public class GenerateQrCodeHandler(
         var qrCodeData = qrGenerator.CreateQrCode(uri, QRCodeGenerator.ECCLevel.Q);
         var qrCode = new Base64QRCode(qrCodeData);
         var qrCodeImageAsBase64 = qrCode.GetGraphic(20);
+        var image = $"data:image/png;base64,{qrCodeImageAsBase64}";
 
-        var response = GenerateQrCodeResponse.Create(key, $"data:image/png;base64,{qrCodeImageAsBase64}", key);
+        var response = GenerateQrCodeResponse.Create(key, image, key);
+        telemetry.MarkQrCodeGenerated(command.UserId, image, key);
         return Result.Success(response);
     }
 }

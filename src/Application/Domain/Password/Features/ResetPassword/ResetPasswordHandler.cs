@@ -6,17 +6,24 @@ using Thiagosza.Mediator.Core.Interfaces;
 namespace Application.Domain.Password.Features.ResetPassword;
 
 public class ResetPasswordHandler(
-    UserManager<UserDomain> userManager
+    UserManager<UserDomain> userManager,
+    ResetPasswordTelemetry telemetry
 ) : IRequestHandler<ResetPasswordCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(command.Email);
         if (user is null)
+        {
+            telemetry.MarkUserNotFound(command.Email);
             return Result.Failure<string>("Usuário não encontrado");
+        }
 
         if (!await userManager.IsEmailConfirmedAsync(user))
+        {
+            telemetry.MarkEmailNotConfirmed(user);
             return Result.Failure<string>("Essa conta precisa confirmar seu e-mail antes de realizar o login");
+        }
 
         var result = await userManager.ResetPasswordAsync(user, command.ResetCode, command.NewPassword);
         if (result.Succeeded)
@@ -26,6 +33,8 @@ public class ResetPasswordHandler(
             //         .Build(emailTemplateRenderer);
 
             // await emailSender.SendEmailAsync(user.Email!, "Sua senha foi alterada", template);
+
+            telemetry.MarkPasswordChanged(user);
             return Result.Success("Senha alterada com sucesso");
         }
 

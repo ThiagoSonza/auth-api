@@ -6,13 +6,17 @@ using Thiagosza.Mediator.Core.Interfaces;
 namespace Application.Domain.Roles.Features.GetRoles;
 
 public class GetRolesHandler(
-    RoleManager<IdentityRole> roleManager
+    RoleManager<IdentityRole> roleManager,
+    GetRolesTelemetry telemetry
 ) : IRequestHandler<GetRolesCommand, Result<IEnumerable<GetRolesResponse>>>
 {
     public async Task<Result<IEnumerable<GetRolesResponse>>> Handle(GetRolesCommand request, CancellationToken cancellationToken)
     {
         var roles = await roleManager.Roles.ToListAsync(cancellationToken);
         IEnumerable<GetRolesResponse> response = [.. roles.Select(role => (GetRolesResponse)role)];
+
+        telemetry.MarkRolesRetrieved(response);
+
         return Result.Success(response);
     }
 }

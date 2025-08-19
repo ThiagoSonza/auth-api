@@ -13,13 +13,18 @@ namespace Application.Domain.Login.Features.Authenticate;
 public class AuthenticateHandler(
     UserManager<UserDomain> userManager,
     SignInManager<UserDomain> signInManager,
+    AuthenticateTelemetry telemetry,
     IConfiguration config) : IRequestHandler<AuthenticateCommand, Result<AuthenticateResponse>>
 {
-    public async Task<Result<AuthenticateResponse>> Handle(AuthenticateCommand request, CancellationToken cancellationToken)
+    public async Task<Result<AuthenticateResponse>> Handle(AuthenticateCommand command, CancellationToken cancellationToken)
     {
-        var result = await signInManager.PasswordSignInAsync(request.Email, request.Password, false, false);
+        var result = await signInManager.PasswordSignInAsync(command.Email, command.Password, false, false);
         if (result.Succeeded)
-            return Result.Success(await GerarCredenciais(request.Email));
+        {
+            var credentials = await GerarCredenciais(command.Email);
+            telemetry.AuthenticateSuccessful(command.Email);
+            return Result.Success(credentials);
+        }
 
         List<string> errors = [];
         if (!result.Succeeded)
@@ -34,6 +39,7 @@ public class AuthenticateHandler(
                 errors.Add("Usuário ou senha estão incorretos");
         }
 
+        telemetry.AuthenticateFailed(command.Email, errors);
         return Result.Failure<AuthenticateResponse>(errors);
     }
 
