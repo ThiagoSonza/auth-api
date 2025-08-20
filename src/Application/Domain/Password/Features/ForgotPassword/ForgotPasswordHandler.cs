@@ -2,11 +2,13 @@ using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
+using Thiagosza.RabbitMq.Core.Interfaces;
 
 namespace Application.Domain.Password.Features.ForgotPassword;
 
 public class ForgotPasswordHandler(
     UserManager<UserDomain> userManager,
+    IRabbitMqPublisher publisher,
     ForgotPasswordTelemetry telemetry
 ) : IRequestHandler<ForgotPasswordCommand, Result<string>>
 {
@@ -27,13 +29,8 @@ public class ForgotPasswordHandler(
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
 
-        // var template = await new EmailTemplateRendererBuilder("ForgotPassword")
-        //     .With("UserName", user.UserName!)
-        //     .With("ResetLink", $"http://localhost:5000/reset-password?userId={user.Id}&token={WebUtility.UrlEncode(token)}")
-        //     .Build(emailTemplateRenderer);
-
-        // await emailSender.SendEmailAsync(user.Email!, "Solicitação para redefinição de senha", template);
-
+        var message = new ForgotPasswordMessage(user.Id, user.UserName!, user.Email!, token);
+        await publisher.PublishAsync(message, cancellationToken);
         telemetry.MarkEmailSent(user);
 
         return Result.Success("Email de redefinição de senha enviado com sucesso");

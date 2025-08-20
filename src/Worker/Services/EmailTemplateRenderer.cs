@@ -1,12 +1,10 @@
-using Microsoft.AspNetCore.Hosting;
+namespace Worker.Services;
 
-namespace Services;
-
-public class EmailTemplateRenderer(IWebHostEnvironment env)
+public class EmailTemplateRenderer
 {
-    public async Task<string> RenderAsync(string templateName, Dictionary<string, string> values)
+    public static async Task<string> RenderAsync(string templateName, Dictionary<string, string> values)
     {
-        var path = Path.Combine(env.ContentRootPath, "Data", "Html", templateName + ".html");
+        var path = Path.Combine(AppContext.BaseDirectory, "Html", templateName + ".html");
 
         if (!File.Exists(path))
             throw new FileNotFoundException("Template não encontrado", path);

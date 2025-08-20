@@ -3,7 +3,7 @@ using System.Net.Mail;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 
-namespace Services;
+namespace Worker.Services;
 
 public class EmailSender(IConfiguration configuration) : IEmailSender
 {

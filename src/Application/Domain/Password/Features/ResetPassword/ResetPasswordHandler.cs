@@ -2,11 +2,13 @@ using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
+using Thiagosza.RabbitMq.Core.Interfaces;
 
 namespace Application.Domain.Password.Features.ResetPassword;
 
 public class ResetPasswordHandler(
     UserManager<UserDomain> userManager,
+    IRabbitMqPublisher publisher,
     ResetPasswordTelemetry telemetry
 ) : IRequestHandler<ResetPasswordCommand, Result<string>>
 {
@@ -28,13 +30,10 @@ public class ResetPasswordHandler(
         var result = await userManager.ResetPasswordAsync(user, command.ResetCode, command.NewPassword);
         if (result.Succeeded)
         {
-            //     var template = await new EmailTemplateRendererBuilder("ResetPassword")
-            //         .With("UserName", user.UserName!)
-            //         .Build(emailTemplateRenderer);
-
-            // await emailSender.SendEmailAsync(user.Email!, "Sua senha foi alterada", template);
-
+            var message = new ResetPasswordMessage(user.UserName!, user.Email!);
+            await publisher.PublishAsync(message, cancellationToken);
             telemetry.MarkPasswordChanged(user);
+
             return Result.Success("Senha alterada com sucesso");
         }
 

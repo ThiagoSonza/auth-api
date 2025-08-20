@@ -1,9 +1,9 @@
-using Api.Extensions.Providers;
+using Api.Extensions.Identity.Providers;
 using Application.Infrastructure;
 using Domain.User;
 using Microsoft.AspNetCore.Identity;
 
-namespace Api.Extensions;
+namespace Api.Extensions.Identity;
 
 public static class IdentitySetup
 {

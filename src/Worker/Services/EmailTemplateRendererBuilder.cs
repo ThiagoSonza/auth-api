@@ -1,4 +1,4 @@
-namespace Services;
+namespace Worker.Services;
 
 public class EmailTemplateRendererBuilder(string template)
 {
@@ -10,8 +10,8 @@ public class EmailTemplateRendererBuilder(string template)
         return this;
     }
 
-    public async Task<string> Build(EmailTemplateRenderer emailTemplateRenderer)
+    public async Task<string> Build()
     {
-        return await emailTemplateRenderer.RenderAsync(template, properties);
+        return await EmailTemplateRenderer.RenderAsync(template, properties);
     }
 }

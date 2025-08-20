@@ -2,18 +2,20 @@ using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
+using Thiagosza.RabbitMq.Core.Interfaces;
 
 namespace Application.Domain.Email.Features.ResendConfirmationEmail;
 
 public class ResendConfirmationHandler(
     UserManager<UserDomain> userManager,
+    IRabbitMqPublisher publisher,
     ResendConfirmationTelemetry telemetry
     ) : IRequestHandler<ResendConfirmationEmailCommand, Result<string>>
 {
     public async Task<Result<string>> Handle(ResendConfirmationEmailCommand command, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(command.Email);
-        if (user == null)
+        if (user is null)
         {
             telemetry.MarkUserNotFound(command.Email);
             return Result.Failure<string>("Usuário não encontrado.");
@@ -25,14 +27,15 @@ public class ResendConfirmationHandler(
             return Result.Failure<string>("Esse e-mail já foi confirmado.");
         }
 
-        // var template = await new EmailTemplateRendererBuilder("ConfirmEmail")
-        //     .With("UserName", user.UserName!)
-        //     .With("ConfirmationLink", $"http://localhost:5000/confirm-email?userId={user.Id}&token={WebUtility.UrlEncode(await userManager.GenerateEmailConfirmationTokenAsync(user))}")
-        //     .Build(emailTemplateRenderer);
+        var message = new ResendConfirmationMessage(
+            user.Id,
+            user.UserName!,
+            user.Email!,
+            await userManager.GenerateEmailConfirmationTokenAsync(user));
 
-        // await emailSender.SendEmailAsync(user.Email!, "Confirmação de E-mail", template);
-
+        await publisher.PublishAsync(message, cancellationToken);
         telemetry.MarkEmailResent(user);
+
         return Result.Success("Email de confirmação enviado com sucesso.");
     }
 }

@@ -2,11 +2,13 @@ using Domain.User;
 using Microsoft.AspNetCore.Identity;
 using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
+using Thiagosza.RabbitMq.Core.Interfaces;
 
 namespace Application.Domain.User.Features.RegisterUser;
 
 public class RegisterUserHandler(
     UserManager<UserDomain> userManager,
+    IRabbitMqPublisher publisher,
     RegisterUserTelemetry telemetry
 ) : IRequestHandler<RegisterUserCommand, Result<RegisterUserResponse>>
 {
@@ -22,13 +24,8 @@ public class RegisterUserHandler(
         var result = await userManager.CreateAsync(user, command.Password);
         if (result.Succeeded)
         {
-            //     var template = await new EmailTemplateRendererBuilder("WelcomeEmail")
-            //         .With("UserName", usuario.UserName!)
-            //         .With("Year", DateTime.Now.Year.ToString())
-            //         .Build(emailTemplateRenderer);
-
-            //     await emailSender.SendEmailAsync(usuario.Email!, "Bem-vindo", template);
-
+            var message = new RegisterUserMessage(user.UserName, DateTime.Now.Year.ToString());
+            await publisher.PublishAsync(message, cancellationToken);
             telemetry.MarkUserRegistered(user);
 
             return Result.Success((RegisterUserResponse)user);

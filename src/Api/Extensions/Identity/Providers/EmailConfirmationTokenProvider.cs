@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace Api.Extensions.Providers;
+namespace Api.Extensions.Identity.Providers;
 
-public class PasswordResetTokenProvider<TUser>(
+public class EmailConfirmationTokenProvider<TUser>(
     IDataProtectionProvider dataProtectionProvider,
-    IOptions<PasswordResetTokenProviderOptions> options,
+    IOptions<EmailConfirmationTokenProviderOptions> options,
     ILogger<DataProtectorTokenProvider<TUser>> logger)
     : DataProtectorTokenProvider<TUser>(dataProtectionProvider, options, logger) where TUser : class
 {
 }
 
-public class PasswordResetTokenProviderOptions : DataProtectionTokenProviderOptions { }
+public class EmailConfirmationTokenProviderOptions : DataProtectionTokenProviderOptions { }

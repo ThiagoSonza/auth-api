@@ -1,3 +1,4 @@
+using Api.Extensions.Identity;
 using Application.Domain.Email.Features.ConfirmEmail;
 using Application.Domain.Email.Features.ResendConfirmationEmail;
 using Application.Domain.Login.Features.Authenticate;
@@ -19,7 +20,7 @@ using Application.Domain.User.Features.RegisterUser;
 using Application.Infrastructure;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Services;
+using Worker.Services;
 
 namespace Api.Extensions;
 
@@ -35,7 +36,13 @@ public static class InjectorConfig
         services.AddTransient<IEmailSender, EmailSender>();
         services.AddTransient<EmailTemplateRenderer>();
 
-        // Register Telemetries
+        services.AddTelemetries();
+
+        return services;
+    }
+
+    private static IServiceCollection AddTelemetries(this IServiceCollection services)
+    {
         services.AddScoped<ConfirmEmailTelemetry>();
         services.AddScoped<ResendConfirmationTelemetry>();
         services.AddScoped<AuthenticateTelemetry>();

@@ -1,4 +1,5 @@
 using Api.Extensions;
+using Api.Extensions.Messaging;
 using Api.Extensions.Swagger;
 using Api.Extensions.Telemetry;
 using Thiagosza.Mediator.Core.Extensions;
@@ -16,6 +17,7 @@ builder.Services.RegisterServices(builder.Configuration);
 builder.Services.AddMediator();
 builder.Services.AddValidators();
 builder.Services.AddTelemetry(builder.Host, builder.Configuration);
+builder.Services.AddRabbitMq(builder.Configuration);
 
 var app = builder.Build();
 app.MapEndpoints();

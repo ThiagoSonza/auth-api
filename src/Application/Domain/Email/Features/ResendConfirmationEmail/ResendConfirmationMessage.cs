@@ -1,0 +1,3 @@
+namespace Application.Domain.Email.Features.ResendConfirmationEmail;
+
+public record ResendConfirmationMessage(string UserId, string Username, string Email, string Token);

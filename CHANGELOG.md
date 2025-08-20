@@ -2,6 +2,16 @@
 
 Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 
+## [4.0.0] - 2025-08-20
+
+- Created Worker project to handle email notifications for user actions.
+- Implemented consumers for Forgot Password, Register User, and Resend Confirmation emails.
+- Added email sending functionality using SMTP with EmailSender service.
+- Introduced EmailTemplateRenderer and EmailTemplateRendererBuilder for rendering email templates.
+- Updated Api project to include new Worker project references and configurations.
+- Enhanced application configuration for messaging settings.
+- Updated application dependencies to support new features and improvements.
+
 ## [3.0.0] - 2025-08-18
 
 - Implemented ConfirmMultiFactorTelemetry to track code validation and user status.

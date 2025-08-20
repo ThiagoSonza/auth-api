@@ -3,7 +3,7 @@ using FluentValidation.AspNetCore;
 
 namespace Api.Extensions;
 
-public static class ValidaorSetup
+public static class ValidadorSetup
 {
     public static IServiceCollection AddValidators(this IServiceCollection services)
     {
