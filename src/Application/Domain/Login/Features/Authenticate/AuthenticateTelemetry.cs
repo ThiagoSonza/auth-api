@@ -21,7 +21,7 @@ public class AuthenticateTelemetry(
         logger.LogInformation("Authentication successful for user: {Email}", email);
     }
 
-    public void AuthenticateFailed(string email, List<string> errors)
+    public void AuthenticateFailed(string email, IEnumerable<string> errors)
     {
         telemetryService
             .AddTag("user.email", email)

@@ -21,26 +21,30 @@ public class AuthenticateHandler(
         var result = await signInManager.PasswordSignInAsync(command.Email, command.Password, false, false);
         if (result.Succeeded)
         {
+            var user = (await userManager.FindByEmailAsync(command.Email))!;
+            if (!await userManager.IsEmailConfirmedAsync(user))
+                return Result.Failure<AuthenticateResponse>("Essa conta precisa confirmar seu e-mail antes de realizar o login");
+
             var credentials = await GerarCredenciais(command.Email);
             telemetry.AuthenticateSuccessful(command.Email);
             return Result.Success(credentials);
         }
 
-        List<string> errors = [];
-        if (!result.Succeeded)
-        {
-            if (result.IsLockedOut)
-                errors.Add("Essa conta está bloqueada");
-            else if (result.IsNotAllowed)
-                errors.Add("Essa conta não tem permissão para fazer login");
-            else if (result.RequiresTwoFactor)
-                errors.Add("É necessário confirmar o login no seu segundo fator de autenticação");
-            else
-                errors.Add("Usuário ou senha estão incorretos");
-        }
-
+        var errors = GetAccountErrors(result);
         telemetry.AuthenticateFailed(command.Email, errors);
         return Result.Failure<AuthenticateResponse>(errors);
+    }
+
+    private static IEnumerable<string> GetAccountErrors(SignInResult result)
+    {
+        if (result.IsLockedOut)
+            yield return "Essa conta está bloqueada";
+        if (result.IsNotAllowed)
+            yield return "Essa conta não tem permissão para fazer login";
+        if (result.RequiresTwoFactor)
+            yield return "É necessário confirmar o login no seu segundo fator de autenticação";
+        if (!result.Succeeded)
+            yield return "Usuário ou senha estão incorretos";
     }
 
     private async Task<AuthenticateResponse> GerarCredenciais(string email)

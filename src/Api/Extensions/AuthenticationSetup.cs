@@ -1,15 +1,19 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SharedKernel;
 
 namespace Api.Extensions;
 
 public static class AuthenticationSetup
 {
-    public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApiAuthentication(this IServiceCollection services)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.GetSection("Jwt:Key").Value!));
+        var settings = services.BuildServiceProvider().GetRequiredService<IOptions<AppSettings>>().Value.Jwt;
+
+        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(settings.Secret));
 
         services.Configure<IdentityOptions>(options =>
         {
@@ -23,10 +27,10 @@ public static class AuthenticationSetup
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = configuration.GetSection("Jwt:Issuer").Value,
+            ValidIssuer = settings.Issuer,
 
             ValidateAudience = true,
-            ValidAudience = configuration.GetSection("Jwt:Audience").Value,
+            ValidAudience = settings.Audience,
 
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = securityKey,

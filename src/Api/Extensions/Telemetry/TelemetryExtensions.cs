@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -7,16 +8,20 @@ using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using SharedKernel;
 
 namespace Api.Extensions.Telemetry;
 
 public static class TelemetryExtensions
 {
-    public static IServiceCollection AddTelemetry(this IServiceCollection services, ConfigureHostBuilder host, IConfiguration configuration)
+    public static IServiceCollection AddTelemetry(this IServiceCollection services, ConfigureHostBuilder host)
     {
+        var sp = services.BuildServiceProvider();
+        var settings = sp.GetRequiredService<IOptions<AppSettings>>().Value.Telemetry;
+
         var serviceName = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title ?? "Unknown Service";
         var serviceVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
-        var endpoint = configuration["Telemetry:Endpoint"]!;
+        var endpoint = settings.Endpoint;
 
         var activitySource = new ActivitySource(serviceName);
         services.AddSingleton(activitySource);
@@ -29,8 +34,8 @@ public static class TelemetryExtensions
         host.UseSerilog((context, services, serilogCfg) =>
         {
             serilogCfg
-                .MinimumLevel.Is(GetLogLevel(configuration))
-                .MinimumLevel.ControlledBy(new LoggingLevelSwitch(GetLogLevel(configuration)))
+                .MinimumLevel.Is(GetLogLevel(settings.MinimumLevel))
+                .MinimumLevel.ControlledBy(new LoggingLevelSwitch(GetLogLevel(settings.MinimumLevel)))
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("ServiceName", serviceName)
                 .Enrich.WithProperty("ServiceVersion", serviceVersion)
@@ -78,9 +83,9 @@ public static class TelemetryExtensions
         return services;
     }
 
-    private static LogEventLevel GetLogLevel(IConfiguration configuration)
+    private static LogEventLevel GetLogLevel(string minimumLevel)
     {
-        var nivel = configuration["Telemetry:MinimumLevel"]?.ToUpper();
+        var nivel = minimumLevel.ToUpperInvariant();
 
         return nivel switch
         {

@@ -26,11 +26,11 @@ public class Result
     public static Result<TValue> Failure<TValue>(string error)
         => Result<TValue>.Create(default, false, [error]);
 
-    public static Result Failure(List<string> errors)
-        => new(false, errors);
+    public static Result Failure(IEnumerable<string> errors)
+        => new(false, [.. errors]);
 
-    public static Result<TValue> Failure<TValue>(List<string> errors)
-        => Result<TValue>.Create(default, false, errors);
+    public static Result<TValue> Failure<TValue>(IEnumerable<string> errors)
+        => Result<TValue>.Create(default, false, [.. errors]);
 }
 
 public class Result<TValue> : Result

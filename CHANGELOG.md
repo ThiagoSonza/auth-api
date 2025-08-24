@@ -2,6 +2,11 @@
 
 Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 
+## [4.1.0] - 2025-08-24
+
+- Refactor authentication and configuration setup;
+- Enhance error handling and telemetry integration
+
 ## [4.0.0] - 2025-08-20
 
 - Created Worker project to handle email notifications for user actions.

@@ -20,16 +20,18 @@ using Application.Domain.User.Features.RegisterUser;
 using Application.Infrastructure;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using SharedKernel;
 using Worker.Services;
 
 namespace Api.Extensions;
 
 public static class InjectorConfig
 {
-    public static IServiceCollection RegisterServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection RegisterServices(this IServiceCollection services)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+        var settings = services.BuildServiceProvider().GetRequiredService<IOptions<AppSettings>>().Value.ConnectionStrings;
+        services.AddDbContext<AppDbContext>(options => options.UseSqlServer(settings.DefaultConnection));
 
         services.AddIdentityService();
 

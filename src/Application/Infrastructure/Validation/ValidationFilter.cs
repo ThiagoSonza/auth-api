@@ -15,14 +15,14 @@ public class ValidationFilter<T> : IEndpointFilter where T : class
 
         var argument = context.Arguments.OfType<T>().FirstOrDefault();
         if (argument is null)
-            return Results.BadRequest("Dados inválidos.");
+            return Results.UnprocessableEntity("Dados inválidos.");
 
         var validationResult = await validator.ValidateAsync(argument);
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors
                 .Select(e => (PropertyName: e.PropertyName, ErrorMessage: e.ErrorMessage));
-            return Results.BadRequest(new ValidatonCustomProblemDetails(HttpStatusCode.BadRequest, request: context.HttpContext.Request, errors: errors));
+            return Results.UnprocessableEntity(new ValidatonCustomProblemDetails(HttpStatusCode.UnprocessableEntity, request: context.HttpContext.Request, errors: errors));
         }
 
         return await next(context);
