@@ -29,7 +29,7 @@ public class ResendConfirmationHandler(
 
         var message = new ResendConfirmationMessage(
             user.Id,
-            user.UserName!,
+            user.Name!,
             user.Email!,
             await userManager.GenerateEmailConfirmationTokenAsync(user));
 

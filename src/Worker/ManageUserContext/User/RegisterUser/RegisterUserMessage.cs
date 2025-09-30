@@ -1,3 +1,3 @@
-namespace Worker.Models;
+namespace Worker.ManageUserContext.User.RegisterUser;
 
-public record RegisterUserMessage(string Username, string Name, string Year);
+public record RegisterUserMessage(string Email, string Name, string Year);

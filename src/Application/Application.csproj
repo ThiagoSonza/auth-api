@@ -16,7 +16,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.18" />
-    <PackageReference Include="Thiagosza.RabbitMq.Core" Version="1.1.0" />
+    <PackageReference Include="Thiagosza.RabbitMq.Core" Version="1.2.0" />
     <PackageReference Include="Thiagosza.Mediator.Core" Version="1.0.5" />    
     <PackageReference Include="QRCoder" Version="1.6.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />    

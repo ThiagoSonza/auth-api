@@ -30,7 +30,7 @@ public class ResetPasswordHandler(
         var result = await userManager.ResetPasswordAsync(user, command.ResetCode, command.NewPassword);
         if (result.Succeeded)
         {
-            var message = new ResetPasswordMessage(user.UserName!, user.Email!);
+            var message = new ResetPasswordMessage(user.Name!, user.Email!);
             await publisher.PublishAsync(message, cancellationToken);
             telemetry.MarkPasswordChanged(user);
 

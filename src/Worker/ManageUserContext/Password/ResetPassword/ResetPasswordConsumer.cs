@@ -5,15 +5,23 @@ using Worker.Services;
 namespace Worker.ManageUserContext.Password.ResetPassword;
 
 public class ResetPasswordConsumer(
-    IEmailSender emailSender
+    IEmailSender emailSender,
+    ResetPasswordTelemetry telemetry
 ) : IMessageHandler<ResetPasswordMessage>
 {
     public async Task HandleAsync(ResetPasswordMessage message, CancellationToken cancellationToken)
     {
+        telemetry.ReceivedMessage(message);
+
         var template = await new EmailTemplateRendererBuilder("ResetPassword")
-            .With("UserName", message.Username)
+            .With("Name", message.Name)
+            .With("Year", DateTime.Now.Year.ToString())
             .Build();
 
+        telemetry.SendingEmail(message);
+
         await emailSender.SendEmailAsync(message.Email, "Sua senha foi alterada", template);
+
+        telemetry.EmailSent(message);
     }
 }

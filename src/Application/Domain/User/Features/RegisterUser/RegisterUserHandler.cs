@@ -25,7 +25,7 @@ public class RegisterUserHandler(
         var result = await userManager.CreateAsync(user, command.Password);
         if (result.Succeeded)
         {
-            var message = new RegisterUserMessage(user.UserName, user.Name, DateTime.Now.Year.ToString());
+            var message = new RegisterUserMessage(user.Email, user.Name, DateTime.Now.Year.ToString());
             await publisher.PublishAsync(message, cancellationToken);
             telemetry.MarkUserRegistered(user);
 

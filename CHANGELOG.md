@@ -5,6 +5,7 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 ## Índice
 
 - [API](#api)
+  - [4.3.0](#430---2025-09-30)
   - [4.2.0](#420---2025-09-29)
   - [4.1.0](#410---2025-08-24)
   - [4.0.0](#400---2025-08-20)
@@ -14,9 +15,19 @@ Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
   - [2.0.0](#200---2025-07-31)
   - [1.0.0](#100---2025-07-31)
 - [Worker](#worker)
+  - [1.1.0](#110---2025-09-30)
   - [1.0.0](#100---2025-09-29)
 
 ## API
+
+## [4.3.0] - 2025-09-30
+
+- Removed unnecessary project reference to Worker in Api project.
+- Cleaned up InjectorConfig by removing unused email sender services.
+- Deleted DiagnosticsConfig as it was no longer needed.
+- Updated connection strings in appsettings for both Development and Production environments.
+- Modified ResendConfirmationEmail and ForgotPassword features to use 'Name' instead of 'UserName'.
+- Added Dockerfile for facilitate containerization.
 
 ## [4.2.0] - 2025-09-29
 
@@ -101,6 +112,14 @@ Segue a tradução do texto:
 - Melhorias no tratamento de erros e validação
 
 ## Worker
+
+## [1.1.0] - 2025-09-30
+
+- Updated connection strings in appsettings for both Development and Production environments.
+- Updated HTML templates for email confirmations and password resets to improve styling and content.
+- Enhanced telemetry integration in Worker project, adding telemetry for ForgotPassword, ResetPassword, ResendConfirmation, and RegisterUser processes.
+- Introduced OpenTelemetry for better logging and monitoring.
+- Added Dockerfile for facilitate containerization.
 
 ## [1.0.0] - 2025-09-29
 

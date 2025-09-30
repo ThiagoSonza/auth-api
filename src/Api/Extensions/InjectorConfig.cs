@@ -18,11 +18,9 @@ using Application.Domain.User.Features.GetUserInfo;
 using Application.Domain.User.Features.ManageUserInfo;
 using Application.Domain.User.Features.RegisterUser;
 using Application.Infrastructure;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SharedKernel;
-using Worker.Services;
 
 namespace Api.Extensions;
 
@@ -34,9 +32,6 @@ public static class InjectorConfig
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(settings.DefaultConnection));
 
         services.AddIdentityService();
-
-        services.AddTransient<IEmailSender, EmailSender>();
-        services.AddTransient<EmailTemplateRenderer>();
 
         services.AddTelemetries();
 

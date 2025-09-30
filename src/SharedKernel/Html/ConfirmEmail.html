@@ -1,8 +1,67 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bem-vindo!</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9f9f9;
+            padding: 0;
+            margin: 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .content {
+            padding: 30px;
+            color: #333;
+        }
+
+        .content h2 {
+            margin-top: 0;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #999;
+        }
+    </style>
+</head>
 <body>
-    <p>Olá {{UserName}},</p>
-    <p>Clique no link abaixo para confirmar seu e-mail:</p>
-    <p><a href="{{ConfirmationLink}}">Confirmar e-mail</a></p>
+    <div class="email-container">
+        <div class="header">
+            <h1>Bem-vindo, {{Name}}!</h1>
+        </div>
+
+        <div class="content">
+            <h2>Confirmação de e-mail</h2>
+
+            <p>Clique no link abaixo para confirmar seu e-mail:</p>
+            <p><a href="{{ConfirmationLink}}">Confirmar e-mail</a></p>
+
+            <p style="margin-top: 30px;">Se você não se solicitou a confirmação do e-mail, ignore este e-mail.</p>
+        </div>
+
+        <div class="footer">
+            &copy; {{Year}} - Nome da Sua Aplicação. Todos os direitos reservados.
+        </div>
+    </div>
 </body>
 </html>

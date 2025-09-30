@@ -29,7 +29,7 @@ public class ForgotPasswordHandler(
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
 
-        var message = new ForgotPasswordMessage(user.Id, user.UserName!, user.Email!, token);
+        var message = new ForgotPasswordMessage(user.Id, user.Name!, user.Email!, token);
         await publisher.PublishAsync(message, cancellationToken);
         telemetry.MarkEmailSent(user);
 

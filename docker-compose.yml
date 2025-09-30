@@ -10,7 +10,7 @@ services:
     container_name: "database"
     hostname: "database"
     ports:
-      - "9433:1433"
+      - "1433:1433"
     image: "mcr.microsoft.com/azure-sql-edge:latest"
     environment:
       ACCEPT_EULA: "1"
@@ -82,16 +82,47 @@ services:
       - collector
       - tempo
 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # Porta para conexões AMQP
+      - "15672:15672" # Porta para o painel de gerenciamento (UI)
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: passw123
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
   app:
     container_name: app
     build:
-      context: .
-      dockerfile: ./Dockerfile
+      context: ./src/
+      dockerfile: ./Api/Dockerfile
     ports:
       - "5000:5000"
     depends_on:
-      - grafana
+      rabbitmq:
+        condition: service_healthy
+      grafana:
+        condition: service_started
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  worker:
+    container_name: worker
+    build:
+      context: ./src/
+      dockerfile: ./Worker/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      grafana:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
