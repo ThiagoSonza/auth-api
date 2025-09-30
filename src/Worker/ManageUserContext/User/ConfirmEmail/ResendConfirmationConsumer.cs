@@ -1,20 +1,22 @@
 using System.Net;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using SharedKernel;
 using Thiagosza.RabbitMq.Core.Interfaces;
-using Worker.Models;
 using Worker.Services;
 
-namespace Worker.Consumers;
+namespace Worker.ManageUserContext.User.ConfirmEmail;
 
-public class ResendConfirmationEmailConsumer(
+public class ResendConfirmationConsumer(
     IEmailSender emailSender,
-    IConfiguration configuration
-) : IMessageHandler<ResendConfirmationEmail>
+    IOptions<AppSettings> settings
+) : IMessageHandler<ResendConfirmationMessage>
 {
-    public async Task HandleAsync(ResendConfirmationEmail message, CancellationToken cancellationToken)
+    private readonly UrlOptions urlOptions = settings.Value.Urls;
+
+    public async Task HandleAsync(ResendConfirmationMessage message, CancellationToken cancellationToken)
     {
-        var url = configuration.GetSection("Urls:UrlFrontend").Value;
+        var url = urlOptions.UrlFrontend;
 
         var template = await new EmailTemplateRendererBuilder("ConfirmEmail")
             .With("UserName", message.Username)

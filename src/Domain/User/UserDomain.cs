@@ -4,7 +4,8 @@ namespace Domain.User;
 
 public class UserDomain : IdentityUser
 {
-    public string? PersonalIdentifier { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public void Update(string personalIdentifier, string userName, string email, bool emailConfirmed)
     {

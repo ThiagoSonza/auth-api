@@ -1,12 +1,12 @@
-using Application.Domain.Email.Features.ResendConfirmationEmail;
-using Application.Domain.Password.Features.ForgotPassword;
-using Application.Domain.Password.Features.ResetPassword;
-using Application.Domain.User.Features.RegisterUser;
 using Microsoft.Extensions.Options;
 using SharedKernel;
 using Thiagosza.RabbitMq.Core.Extensions;
+using Worker.ManageUserContext.Password.ForgotPassword;
+using Worker.ManageUserContext.Password.ResetPassword;
+using Worker.ManageUserContext.User.ConfirmEmail;
+using Worker.ManageUserContext.User.RegisterUser;
 
-namespace Api.Extensions;
+namespace Worker.Infrastructure.Extensions;
 
 public static class MessagingSetup
 {
@@ -22,10 +22,10 @@ public static class MessagingSetup
                 h.Password = settings.Password;
             });
 
-            configure.AddProducer<ResendConfirmationMessage>(settings.Queues.ResendConfirmation);
-            configure.AddProducer<ForgotPasswordMessage>(settings.Queues.ForgotPassword);
-            configure.AddProducer<ResetPasswordMessage>(settings.Queues.ResetPassword);
-            configure.AddProducer<RegisterUserMessage>(settings.Queues.RegisterUser);
+            configure.AddConsumer<ForgotPasswordConsumer>(settings.Queues.ForgotPassword);
+            configure.AddConsumer<ResetPasswordConsumer>(settings.Queues.ResetPassword);
+            configure.AddConsumer<ResendConfirmationConsumer>(settings.Queues.ResendConfirmation);
+            configure.AddConsumer<RegisterUserConsumer>(settings.Queues.RegisterUser);
         });
 
         return services;

@@ -18,13 +18,14 @@ public class RegisterUserHandler(
         {
             UserName = command.Email,
             Email = command.Email,
-            PersonalIdentifier = "00112233445566"
+            Name = command.Name,
+            CreatedAt = DateTime.Now
         };
 
         var result = await userManager.CreateAsync(user, command.Password);
         if (result.Succeeded)
         {
-            var message = new RegisterUserMessage(user.UserName, DateTime.Now.Year.ToString());
+            var message = new RegisterUserMessage(user.UserName, user.Name, DateTime.Now.Year.ToString());
             await publisher.PublishAsync(message, cancellationToken);
             telemetry.MarkUserRegistered(user);
 

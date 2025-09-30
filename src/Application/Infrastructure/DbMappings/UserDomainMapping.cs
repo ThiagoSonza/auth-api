@@ -16,15 +16,15 @@ public class UserMapping : IEntityTypeConfiguration<UserDomain>
             .HasMaxLength(36)
             .IsRequired();
 
-        builder.Property(u => u.PersonalIdentifier)
-            .HasMaxLength(20)
-            .IsRequired();
-
         builder.Property(u => u.UserName)
             .HasMaxLength(50)
             .IsRequired();
 
         builder.Property(u => u.Email)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        builder.Property(u => u.Name)
             .HasMaxLength(50)
             .IsRequired();
 

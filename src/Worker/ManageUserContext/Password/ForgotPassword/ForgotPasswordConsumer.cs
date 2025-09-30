@@ -1,20 +1,22 @@
 using System.Net;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using SharedKernel;
 using Thiagosza.RabbitMq.Core.Interfaces;
-using Worker.Models;
 using Worker.Services;
 
-namespace Worker.Consumers;
+namespace Worker.ManageUserContext.Password.ForgotPassword;
 
-public class ForgotPasswordEmailConsumer(
+public class ForgotPasswordConsumer(
     IEmailSender emailSender,
-    IConfiguration configuration
-) : IMessageHandler<ForgotPasswordEmail>
+    IOptions<AppSettings> settings
+) : IMessageHandler<ForgotPasswordMessage>
 {
-    public async Task HandleAsync(ForgotPasswordEmail message, CancellationToken cancellationToken)
+    private readonly UrlOptions urlOptions = settings.Value.Urls;
+
+    public async Task HandleAsync(ForgotPasswordMessage message, CancellationToken cancellationToken)
     {
-        var url = configuration.GetSection("Urls:UrlFrontend").Value;
+        var url = urlOptions.UrlFrontend;
 
         var template = await new EmailTemplateRendererBuilder("ForgotPassword")
             .With("UserName", message.UserName)

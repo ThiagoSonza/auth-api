@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using SharedKernel;
 using Thiagosza.Mediator.Core.Interfaces;
 
 namespace Application.Domain.User.Features.RegisterUser;
@@ -16,7 +15,7 @@ public class RegisterUserEndpoint : IEndPoint
     {
         app.MapPost("register", async (
             [FromServices] IMediator mediator,
-            [FromBody] RegisterRequest request,
+            [FromBody] RegisterUserRequest request,
             CancellationToken cancellationToken) =>
             {
                 RegisterUserCommand command = request;

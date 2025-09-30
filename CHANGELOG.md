@@ -2,6 +2,33 @@
 
 Todas as alterações notáveis deste projeto serão documentadas neste arquivo.
 
+## Índice
+
+- [API](#api)
+  - [4.2.0](#420---2025-09-29)
+  - [4.1.0](#410---2025-08-24)
+  - [4.0.0](#400---2025-08-20)
+  - [3.0.0](#300---2025-08-18)
+  - [2.1.1](#211---2025-08-08)
+  - [2.1.0](#210---2025-08-01)
+  - [2.0.0](#200---2025-07-31)
+  - [1.0.0](#100---2025-07-31)
+- [Worker](#worker)
+  - [1.0.0](#100---2025-09-29)
+
+## API
+
+## [4.2.0] - 2025-09-29
+
+- Updated RegisterUserHandler to include user name and creation date.
+- Modified RegisterUserMessage to include user name.
+- Introduced RegisterUserRequest for handling registration data.
+- Updated RegisterUserResponse to include user name.
+- Adjusted UserDomain to store user creation date and name.
+- Removed PersonalIdentifier from UserDomain and database mapping.
+- Adjusted initial database migration for user and role tables.
+- Added configuration setup for application settings.
+
 ## [4.1.0] - 2025-08-24
 
 - Refactor authentication and configuration setup;
@@ -72,6 +99,15 @@ Segue a tradução do texto:
 - Implementada autorização baseada em papéis
 - Adicionados recursos de redefinição de senha e confirmação de e-mail
 - Melhorias no tratamento de erros e validação
+
+## Worker
+
+## [1.0.0] - 2025-09-29
+
+- Implemented email consumers for user registration, password reset, and email confirmation.
+- Removed obsolete email models and updated email templates to reflect new user data.
+- Configured application startup for dependency injection and messaging setup.
+- Added configuration setup for application settings.
 
 ---
 

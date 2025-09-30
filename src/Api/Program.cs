@@ -7,6 +7,7 @@ using Thiagosza.Mediator.Core.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 Console.WriteLine($"Current environment: {builder.Environment.EnvironmentName}");
 
+builder.Services.AddHttpLogging();
 builder.Services.AddConfigurations(builder.Configuration);
 builder.Services.AddVersioning();
 builder.Services.AddCors();
@@ -27,4 +28,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseHttpLogging();
 app.Run();
